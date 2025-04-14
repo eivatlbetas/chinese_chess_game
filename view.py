@@ -21,6 +21,11 @@ class ChessView:
         # 绘制棋子
         self._draw_pieces(screen, x_0, y_0, grid_size)
 
+        # 显示可能的移动位置
+        if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
+            possible_moves = self.board.selected_piece.get_possible_moves(self.board)
+            self.display_possible_moves(screen, x_0, y_0, grid_size, possible_moves)
+
     def _draw_board(self, screen, x_0, y_0, grid_size):
         # 绘制棋盘网格
         self._draw_tian_shape(screen, x_0, y_0, grid_size)
@@ -98,10 +103,13 @@ class ChessView:
             text_rect = text.get_rect(center=(center_x, center_y))
             screen.blit(text, text_rect)
 
-    def display_possible_moves(self, moves):
+    def display_possible_moves(self, screen, x_0, y_0, grid_size, moves):
         # 显示棋子可能的移动位置
-        pass
-
+        for move in moves:
+            x, y = move
+            center_x = x_0 + x * grid_size
+            center_y = y_0 + y * grid_size
+            pygame.draw.circle(screen, self.BLUE_COLOR, (center_x, center_y), 10)
     def display_message(self, message):
         # 显示提示信息
         print(message)
