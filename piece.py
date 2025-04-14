@@ -1,0 +1,221 @@
+class Piece:
+    def __init__(self, name, color, position):
+        self.name = name
+        self.color = color
+        self.position = position
+
+    def move(self, new_position):
+        # 实现棋子移动逻辑
+        self.position = new_position
+
+    def get_possible_moves(self, board):
+        # 根据棋子类型实现不同的移动逻辑
+        if self.name in ['俥', '車']:
+            return self._get_chariot_moves(board)
+        elif self.name in ['傌', '馬']:
+            return self._get_horse_moves(board)
+        elif self.name in ['相', '象']:
+            return self._get_elephant_moves(board)
+        elif self.name in ['仕', '士']:
+            return self._get_advisor_moves(board)
+        elif self.name in ['帥', '將']:
+            return self._get_general_moves(board)
+        elif self.name in ['砲', '炮']:
+            return self._get_cannon_moves(board)
+        elif self.name in ['兵', '卒']:
+            return self._get_soldier_moves(board)
+        else:
+            return []
+
+    def _get_chariot_moves(self, board):
+        # 实现俥/車的移动逻辑
+        moves = []
+        x, y = self.position
+        # 横向移动
+        for dx in [-1, 1]:
+            new_x = x + dx
+            while 0 <= new_x < 9:
+                target_piece = board.get_piece_at((new_x, y))
+                if target_piece is None:
+                    moves.append((new_x, y))
+                elif target_piece.color != self.color:
+                    moves.append((new_x, y))
+                    break
+                else:
+                    break
+                new_x += dx
+        # 纵向移动
+        for dy in [-1, 1]:
+            new_y = y + dy
+            while 0 <= new_y < 10:
+                target_piece = board.get_piece_at((x, new_y))
+                if target_piece is None:
+                    moves.append((x, new_y))
+                elif target_piece.color != self.color:
+                    moves.append((x, new_y))
+                    break
+                else:
+                    break
+                new_y += dy
+        return moves
+
+    def _get_horse_moves(self, board):
+        # 实现傌/馬的移动逻辑
+        moves = []
+        x, y = self.position
+        offsets = [(1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)]
+        for dx, dy in offsets:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 9 and 0 <= new_y < 10:
+                # 蹩马腿检查
+                if abs(dx) == 2:
+                    blocked_x = x + dx // 2
+                    if board.get_piece_at((blocked_x, y)) is None:
+                        target_piece = board.get_piece_at((new_x, new_y))
+                        if target_piece is None or target_piece.color != self.color:
+                            moves.append((new_x, new_y))
+                else:
+                    blocked_y = y + dy // 2
+                    if board.get_piece_at((x, blocked_y)) is None:
+                        target_piece = board.get_piece_at((new_x, new_y))
+                        if target_piece is None or target_piece.color != self.color:
+                            moves.append((new_x, new_y))
+        return moves
+
+    def _get_elephant_moves(self, board):
+        # 实现相/象的移动逻辑
+        moves = []
+        x, y = self.position
+        offsets = [(2, 2), (-2, 2), (2, -2), (-2, -2)]
+        for dx, dy in offsets:
+            new_x, new_y = x + dx, y + dy
+            if self.color == 'red' and new_y >= 5:
+                continue
+            if self.color == 'black' and new_y < 5:
+                continue
+            if 0 <= new_x < 9 and 0 <= new_y < 10:
+                # 塞象眼检查
+                blocked_x = x + dx // 2
+                blocked_y = y + dy // 2
+                if board.get_piece_at((blocked_x, blocked_y)) is None:
+                    target_piece = board.get_piece_at((new_x, new_y))
+                    if target_piece is None or target_piece.color != self.color:
+                        moves.append((new_x, new_y))
+        return moves
+
+    def _get_advisor_moves(self, board):
+        # 实现仕/士的移动逻辑
+        moves = []
+        x, y = self.position
+        offsets = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
+        palace_x_range = (3, 5)
+        if self.color == 'red':
+            palace_y_range = (0, 2)
+        else:
+            palace_y_range = (7, 9)
+        for dx, dy in offsets:
+            new_x, new_y = x + dx, y + dy
+            if palace_x_range[0] <= new_x <= palace_x_range[1] and palace_y_range[0] <= new_y <= palace_y_range[1]:
+                target_piece = board.get_piece_at((new_x, new_y))
+                if target_piece is None or target_piece.color != self.color:
+                    moves.append((new_x, new_y))
+        return moves
+
+    def _get_general_moves(self, board):
+        # 实现帥/將的移动逻辑
+        moves = []
+        x, y = self.position
+        offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        palace_x_range = (3, 5)
+        if self.color == 'red':
+            palace_y_range = (0, 2)
+        else:
+            palace_y_range = (7, 9)
+        for dx, dy in offsets:
+            new_x, new_y = x + dx, y + dy
+            if palace_x_range[0] <= new_x <= palace_x_range[1] and palace_y_range[0] <= new_y <= palace_y_range[1]:
+                target_piece = board.get_piece_at((new_x, new_y))
+                if target_piece is None or target_piece.color != self.color:
+                    moves.append((new_x, new_y))
+        # 对脸逻辑
+        other_general = None
+        for piece in board.pieces:
+            if piece.name in ['帥', '将'] and piece.color != self.color:
+                other_general = piece
+                break
+        if other_general and x == other_general.position[0]:
+            min_y = min(y, other_general.position[1])
+            max_y = max(y, other_general.position[1])
+            has_obstacle = False
+            for check_y in range(min_y + 1, max_y):
+                if board.get_piece_at((x, check_y)) is not None:
+                    has_obstacle = True
+                    break
+            if not has_obstacle:
+                moves.append(other_general.position)
+        return moves
+
+    def _get_cannon_moves(self, board):
+        # 实现砲/炮的移动逻辑
+        moves = []
+        x, y = self.position
+        # 横向移动
+        for dx in [-1, 1]:
+            new_x = x + dx
+            found_screen = False
+            while 0 <= new_x < 9:
+                target_piece = board.get_piece_at((new_x, y))
+                if not found_screen:
+                    if target_piece is None:
+                        moves.append((new_x, y))
+                    else:
+                        found_screen = True
+                else:
+                    if target_piece is not None:
+                        if target_piece.color != self.color:
+                            moves.append((new_x, y))
+                        break
+                new_x += dx
+        # 纵向移动
+        for dy in [-1, 1]:
+            new_y = y + dy
+            found_screen = False
+            while 0 <= new_y < 10:
+                target_piece = board.get_piece_at((x, new_y))
+                if not found_screen:
+                    if target_piece is None:
+                        moves.append((x, new_y))
+                    else:
+                        found_screen = True
+                else:
+                    if target_piece is not None:
+                        if target_piece.color != self.color:
+                            moves.append((x, new_y))
+                        break
+                new_y += dy
+        return moves
+
+    def _get_soldier_moves(self, board):
+        # 实现兵/卒的移动逻辑
+        moves = []
+        x, y = self.position
+        if self.color == 'red':
+            if y < 5:
+                offsets = [(0, 1), (-1, 0), (1, 0)]
+            else:
+                offsets = [(0, 1)]
+        else:
+            if y >= 5:
+                offsets = [(0, -1), (-1, 0), (1, 0)]
+            else:
+                offsets = [(0, -1)]
+        for dx, dy in offsets:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < 9 and 0 <= new_y < 10:
+                target_piece = board.get_piece_at((new_x, new_y))
+                if target_piece is None or target_piece.color != self.color:
+                    moves.append((new_x, new_y))
+        return moves
+
+    def __str__(self):
+        return f'{self.color} {self.name} at {self.position}'
