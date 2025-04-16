@@ -5,6 +5,7 @@ class Board:
         self.pieces = []  # 存储所有棋子的列表
         self.initialize_board()
 
+    # 右下角坐标为（0,0），左上角坐标为（8,9），下方为红方，上方为黑方
     def initialize_board(self):
         # 初始化红方各类棋子，包括俥、傌、相、仕、帥、砲、兵
         self.pieces.append(Piece('俥', 'red', (0, 0)))
@@ -63,15 +64,14 @@ class Board:
             return 'red'
         return None
 
-    def move_piece(self, from_position, to_position, current_player):
-        piece = self.get_piece_at(from_position)
-        if piece:
-            if piece.color != current_player:
-                print(f'当前轮到 {current_player} 方，不能移动 {piece.color} 方的棋子。')
-                return
-            if self.is_move_legal(piece, to_position):
-                target_piece = self.get_piece_at(to_position)
-                if target_piece and target_piece.color != piece.color:
-                    self.pieces.remove(target_piece)
-                    print(f'{piece.color} 方的 {target_piece.name} 被吃掉。')
-                piece.move(to_position, self)
+    def move_piece(self, piece, to_position):
+        if self.is_move_legal(piece, to_position):
+            target_piece = self.get_piece_at(to_position)
+            if target_piece and target_piece.color != piece.color:
+                self.pieces.remove(target_piece)
+                print(f'{piece.color} 方的 {target_piece.name} 被吃掉。')
+            piece.move(to_position)
+            return True
+        else:
+            return False
+            

@@ -4,12 +4,8 @@ class Piece:
         self.color = color
         self.position = position
 
-    def move(self, new_position, board):
-        possible_moves = self.get_possible_moves(board)
-        if new_position in possible_moves:
-            self.position = new_position
-        else:
-            print('非法移动')
+    def move(self, new_position):
+        self.position = new_position
 
     def get_possible_moves(self, board):
         # 根据棋子类型实现不同的移动逻辑
