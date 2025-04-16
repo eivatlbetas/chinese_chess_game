@@ -88,12 +88,15 @@ class ChessView:
     def _draw_pieces(self, screen):
         # 绘制棋子
         for piece in self.board.pieces:
-            color = self.RED_COLOR if piece.color =='red' else self.BLACK_COLOR
+            color = self.RED_COLOR if piece.color =='红' else self.BLACK_COLOR
             center = self._pos_convert(piece.position)
             # 绘制棋子的轮廓
             pygame.draw.circle(screen, color, center, self.piece_size, 2)
             # 绘制棋子的内部
-            pygame.draw.circle(screen, self.WHITE_COLOR, center, self.piece_size - 2)
+            if self.board.selected_piece == piece:
+                pygame.draw.circle(screen, self.GRAY_COLOR, center, self.piece_size - 2)
+            else:
+                pygame.draw.circle(screen, self.WHITE_COLOR, center, self.piece_size - 2)
             # 绘制棋子的名称
             font = pygame.font.SysFont('simhei', 36)
             text = font.render(piece.name, True, color)

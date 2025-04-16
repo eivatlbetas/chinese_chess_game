@@ -88,9 +88,9 @@ class Piece:
         offsets = [(2, 2), (-2, 2), (2, -2), (-2, -2)]
         for dx, dy in offsets:
             new_x, new_y = x + dx, y + dy
-            if self.color == 'red' and new_y >= 5:
+            if self.color == '红' and new_y >= 5:
                 continue
-            if self.color == 'black' and new_y < 5:
+            if self.color == '黑' and new_y < 5:
                 continue
             if 0 <= new_x < 9 and 0 <= new_y < 10:
                 # 塞象眼检查
@@ -108,7 +108,7 @@ class Piece:
         x, y = self.position
         offsets = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
         palace_x_range = (3, 5)
-        if self.color == 'red':
+        if self.color == '红':
             palace_y_range = (0, 2)
         else:
             palace_y_range = (7, 9)
@@ -126,7 +126,7 @@ class Piece:
         x, y = self.position
         offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         palace_x_range = (3, 5)
-        if self.color == 'red':
+        if self.color == '红':
             palace_y_range = (0, 2)
         else:
             palace_y_range = (7, 9)
@@ -198,14 +198,16 @@ class Piece:
         # 实现兵/卒的移动逻辑
         moves = []
         x, y = self.position
-        if self.color == 'red':
-            if y < 5:
-                offsets = [(0, 1), (-1, 0), (1, 0)]
+        has_crossed_river = (self.color == '红' and y >= 5) or (self.color == '黑' and y < 5)
+        # 定义移动偏移量
+        if self.color == '红':
+            if has_crossed_river:
+                offsets = [(0, 1), (1, 0), (-1, 0)]
             else:
                 offsets = [(0, 1)]
         else:
-            if y >= 5:
-                offsets = [(0, -1), (-1, 0), (1, 0)]
+            if has_crossed_river:
+                offsets = [(0, -1), (1, 0), (-1, 0)]
             else:
                 offsets = [(0, -1)]
         for dx, dy in offsets:

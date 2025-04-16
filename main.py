@@ -1,11 +1,12 @@
 import pygame
+from board import Board
+from view import ChessView
 
 # 定义网格大小和边距
 x_0 = 60
 y_0 = 60
 grid_size = 60
-from board import Board
-from view import ChessView
+
 
 # 初始化 Pygame
 pygame.init()
@@ -22,8 +23,6 @@ if __name__ == '__main__':
     view = ChessView(board)
     running = True
     game_over = False
-    current_player = 'red'  # 初始化当前玩家为红方
-    selected_piece = None  # 初始化选中的棋子
 
 while running and not game_over:
     for event in pygame.event.get():
@@ -31,7 +30,7 @@ while running and not game_over:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3: # 右键点击，取消选择
-                selected_piece = None
+                board.selected_piece = None
                 print('取消选择。')
                 continue
 
@@ -40,24 +39,29 @@ while running and not game_over:
                 print('点击位置无效，请在网格附近点击。')
                 continue
 
-            if selected_piece is not None:  # 已有选中棋子，尝试移动
-                print(f'尝试将 {selected_piece.name} 移动到 ({center[0]}, {center[1]})。')
-                if board.move_piece(selected_piece, center):
-                    selected_piece = None  # 移动成功后取消选择
-                    current_player = 'black' if current_player == 'red' else 'red'
-                    print(f'移动成功，当前轮到 {current_player} 方。')
+            if board.selected_piece is not None:  # 已有选中棋子，尝试移动
+                print(f'尝试将 {board.selected_piece.name} 移动到 ({center[0]}, {center[1]})。')
+                if board.move_piece(board.selected_piece, center):
+                    board.selected_piece = None  # 移动成功后取消选择
+                    board.current_player = '黑' if board.current_player == '红' else '红'
+                    print(f'移动成功，当前轮到 {board.current_player} 方。')
                 else:
                     print('移动失败，请重新移动。')
             else:  # 没有选中棋子，尝试选择
                 piece = board.get_piece_at(center)
                 if piece is not None:
-                    if piece.color == current_player:
-                        selected_piece = piece
+                    if piece.color == board.current_player:
+                        board.selected_piece = piece
                         print(f'选中 {piece.color} {piece.name} {piece.position} 棋子，请移动。')
                     else:
                         print('这不是你的棋子，请选择你的棋子。')
                 else:
                     print('没有选中棋子，请重新选择。')
+
+            # 检查游戏是否结束
+            if board.is_game_over() is not None:
+                game_over = True
+                print(f'游戏结束，{board.is_game_over()} 方获胜！')
 
     view.display_board(screen)
 
