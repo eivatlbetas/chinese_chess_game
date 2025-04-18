@@ -45,8 +45,8 @@ while running:
         if board.game_over is True:
             view.display_game_over(screen)
 
-    # 更新显示
-    pygame.display.flip()
+        # 更新显示
+        pygame.display.flip()
 
 # 退出 Pygame
 pygame.quit()

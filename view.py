@@ -132,9 +132,9 @@ class BoardView:
 
     def display_game_over(self, screen):
         font = pygame.font.SysFont('simhei', 72)
-        if self.board.current_player == '红':
+        if self.board.current_player() == '红':
             text = font.render('红方获胜！', True, self.RED_COLOR)
-        elif self.board.current_player == '黑':
+        elif self.board.current_player() == '黑':
             text = font.render('黑方获胜！', True, self.BLACK_COLOR)
         else:
             text = font.render('平局！', True, self.GRAY_COLOR)

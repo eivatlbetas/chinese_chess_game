@@ -6,7 +6,7 @@ class Board:
         self.pieces = []  # 存储所有棋子的列表
         self.initialize_board()
         self.game_over = False
-        self.current_player = '红'  # 初始化当前玩家为红方
+        self.player = '红'  # 初始化玩家为红方
         self.selected_piece = None  # 存储选中的棋子
 
     # 右下角坐标为（0,0），左上角坐标为（8,9），下方为红方，上方为黑方
@@ -41,6 +41,25 @@ class Board:
         for i in range(0, 9, 2):
             self.pieces.append(Piece('卒', '黑', (i, 6)))
 
+    def current_player(self):
+        # 获取当前玩家
+        return self.player
+        
+    def opponent_player(self):
+        # 获取对手玩家
+        return '黑' if self.player == '红' else '红'
+
+    def switch_player(self):
+        # 切换玩家
+        self.player = '黑' if self.player == '红' else '红'
+
+    def find_pieces(self, name, color):
+        # 获取指定名称和颜色的棋子（仅返回第1个）
+        for piece in self.pieces:
+            if piece.name == name and piece.color == color:
+                return piece
+        return None
+
     def get_piece_at(self, position):
         # 获取指定位置的棋子
         for piece in self.pieces:
@@ -52,6 +71,15 @@ class Board:
         possible_moves = piece.get_possible_moves(self)
         return to_position in possible_moves
 
+    def _check_check(self, color):
+        opponent_general = next((piece for piece in self.pieces if piece.name == ('將' if color == '红' else '帥')), None)
+        if opponent_general:
+            opponent_general_position = opponent_general.position
+            for piece in self.pieces:
+                if piece.color == color and opponent_general_position in piece.get_possible_moves(self):
+                    return True
+        return False
+
     def _is_game_over(self):
         return (not any(piece.name == '帥' for piece in self.pieces)
              or not any(piece.name == '將' for piece in self.pieces))
@@ -59,34 +87,37 @@ class Board:
     def _select_piece(self, position):
         piece = self.get_piece_at(position)
         if piece is not None:
-            if piece.color == self.current_player:
+            if piece.color == self.current_player():
                 self.selected_piece = piece
                 if self.selected_piece.get_possible_moves(self):
                     print(f'选中{self.selected_piece} 棋子，请移动。')
                 else:
                     print(f'{self.selected_piece}无位置移动，请右键取消选择。') 
             else:
-                print(f'这不是你的棋子，请选择{self.current_player}色棋子。')
+                print(f'这不是你的棋子，请选择{self.current_player()}色棋子。')
         else:
             print(f'{position}没有棋子，请重新选择。')
 
     def _move_piece_to(self, to_position):
         if self.is_move_legal(self.selected_piece, to_position):
             print(f'移动成功，将{self.selected_piece}移动到{to_position}。')
+            # 检查是否吃子
             target_piece = self.get_piece_at(to_position)
             if target_piece and target_piece.color != self.selected_piece.color:
                 self.pieces.remove(target_piece)
-                print(f'{target_piece.color}方的{target_piece.name}被吃掉。')
+                print(f'{target_piece}被吃掉。')
             self.selected_piece.move(to_position)
-            self.selected_piece = None  # 移动成功后取消选择    
+            self.selected_piece = None  # 移动成功后取消选择
 
-            if (self._is_game_over()):  # 检查游戏是否结束
-                self.game_over = True  # 设置游戏结束标志
-                print(f'游戏结束，{self.current_player}方获胜！')
+            if self._is_game_over():  # 检查游戏是否结束
+                self.game_over = True 
+                print(f'游戏结束，{self.current_player()}方获胜！')
                 return
             else:  # 游戏未结束，切换玩家
-                self.current_player = '黑' if self.current_player == '红' else '红'
-                print(f'当前轮到{self.current_player}方。')
+                self.switch_player()
+                print(f'当前轮到{self.current_player()}方。')
+                if self._check_check(self.current_player()):
+                    print(f'{self.current_player()}方被将军！')
         else:
             if self.selected_piece.get_possible_moves(self):
                 print(f'无法将{self.selected_piece}移动到{to_position}，请重新选择。')

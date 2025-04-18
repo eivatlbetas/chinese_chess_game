@@ -13,21 +13,22 @@ class Piece:
     def get_possible_moves(self, board):
         # 根据棋子类型实现不同的移动逻辑
         if self.name in ['俥', '車']:
-            return self._get_chariot_moves(board)
+            moves = self._get_chariot_moves(board)
         elif self.name in ['傌', '馬']:
-            return self._get_horse_moves(board)
+            moves = self._get_horse_moves(board)
         elif self.name in ['相', '象']:
-            return self._get_elephant_moves(board)
+            moves = self._get_elephant_moves(board)
         elif self.name in ['仕', '士']:
-            return self._get_advisor_moves(board)
+            moves = self._get_advisor_moves(board)
         elif self.name in ['帥', '將']:
-            return self._get_general_moves(board)
+            moves = self._get_general_moves(board)
         elif self.name in ['砲', '炮']:
-            return self._get_cannon_moves(board)
+            moves = self._get_cannon_moves(board)
         elif self.name in ['兵', '卒']:
-            return self._get_soldier_moves(board)
+            moves = self._get_soldier_moves(board)
         else:
-            return []
+            moves = []
+        return moves
 
     def _get_chariot_moves(self, board):
         # 实现俥/車的移动逻辑
@@ -204,3 +205,39 @@ class Piece:
                 if target_piece is None or target_piece.color != self.color:
                     moves.append((new_x, new_y))
         return moves
+
+    def is_only_piece_between_generals(self, board):
+        # 查找双方的将/帅
+        red_general = None
+        black_general = None
+        
+        for piece in board.pieces:
+            if piece.name == '帥' and piece.color == '红':
+                red_general = piece
+            elif piece.name == '將' and piece.color == '黑':
+                black_general = piece
+        
+        # 如果没有找到双方的将/帅，返回False
+        if not red_general or not black_general:
+            return False
+            
+        # 检查是否在同一列
+        red_x, red_y = red_general.position
+        black_x, black_y = black_general.position
+        
+        if red_x != black_x:
+            return False
+            
+        # 检查当前棋子是否在两将之间
+        x, y = self.position
+        if not (x == red_x and min(red_y, black_y) < y < max(red_y, black_y)):
+            return False
+
+        # 检查两将之间是否有其他棋子
+        for piece in board.pieces:
+            x, y = piece.position
+            if x == red_x and min(red_y, black_y) < y < max(red_y, black_y):
+                if piece != self:  # 发现其他棋子
+                    return False
+                    
+        return True
