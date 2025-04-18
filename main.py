@@ -41,10 +41,9 @@ while running:
             
             board.click_position(center)
 
-    if board.game_over is not True:
         view.display_board(screen)
-    else:
-        view.display_game_over(screen)
+        if board.game_over is True:
+            view.display_game_over(screen)
 
     # 更新显示
     pygame.display.flip()

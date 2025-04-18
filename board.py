@@ -51,19 +51,8 @@ class Board:
         possible_moves = piece.get_possible_moves(self)
         return to_position in possible_moves
 
-    def _is_game_over(self): # 待优化
-        red_general = False
-        black_general = False
-        for piece in self.pieces:
-            if piece.name == '帥':
-                red_general = True
-            elif piece.name == '將':
-                black_general = True
-        if not red_general:
-            return True
-        elif not black_general:
-            return True
-        return False
+    def _is_game_over(self):
+        return not any(piece.name == '帥' for piece in self.pieces) or not any(piece.name == '將' for piece in self.pieces)
 
     def _select_piece(self, position):
         piece = self.get_piece_at(position)
