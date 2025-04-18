@@ -1,6 +1,8 @@
 import pygame
 
-class ChessView:
+import board
+
+class BoardView:
     def __init__(self, board, x_0 = 60, y_0 = 60, grid_size = 60, piece_size = 25):
         self.board = board # 设置棋盘对象
         self.x_0 = x_0 # 设置边距
@@ -127,3 +129,14 @@ class ChessView:
                 if distance <= self.piece_size:
                     return board_pos
         return self.INVALID_POS
+
+    def display_game_over(self, screen):
+        font = pygame.font.SysFont('simhei', 72)
+        if self.board.current_player == '红':
+            text = font.render('红方获胜！', True, self.RED_COLOR)
+        elif self.board.current_player == '黑':
+            text = font.render('黑方获胜！', True, self.BLACK_COLOR)
+        else:
+            text = font.render('平局！', True, self.GRAY_COLOR)
+        text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+        screen.blit(text, text_rect)
