@@ -4,6 +4,9 @@ class Piece:
         self.color = color
         self.position = position
 
+    def __str__(self):
+        return f'{self.color}{self.name}{self.position}'
+
     def move(self, new_position):
         self.position = new_position
 
@@ -136,22 +139,6 @@ class Piece:
                 target_piece = board.get_piece_at((new_x, new_y))
                 if target_piece is None or target_piece.color != self.color:
                     moves.append((new_x, new_y))
-        # 对脸逻辑
-        other_general = None
-        for piece in board.pieces:
-            if piece.name in ['帥', '将'] and piece.color != self.color:
-                other_general = piece
-                break
-        if other_general and x == other_general.position[0]:
-            min_y = min(y, other_general.position[1])
-            max_y = max(y, other_general.position[1])
-            has_obstacle = False
-            for check_y in range(min_y + 1, max_y):
-                if board.get_piece_at((x, check_y)) is not None:
-                    has_obstacle = True
-                    break
-            if not has_obstacle:
-                moves.append(other_general.position)
         return moves
 
     def _get_cannon_moves(self, board):
@@ -217,6 +204,3 @@ class Piece:
                 if target_piece is None or target_piece.color != self.color:
                     moves.append((new_x, new_y))
         return moves
-
-    def __str__(self):
-        return f'{self.color} {self.name} at {self.position}'

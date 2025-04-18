@@ -1,3 +1,4 @@
+from ast import Not
 from piece import Piece
 
 class Board:
@@ -52,38 +53,45 @@ class Board:
         return to_position in possible_moves
 
     def _is_game_over(self):
-        return not any(piece.name == '帥' for piece in self.pieces) or not any(piece.name == '將' for piece in self.pieces)
+        return (not any(piece.name == '帥' for piece in self.pieces)
+             or not any(piece.name == '將' for piece in self.pieces))
 
     def _select_piece(self, position):
         piece = self.get_piece_at(position)
         if piece is not None:
             if piece.color == self.current_player:
                 self.selected_piece = piece
-                print(f'选中 {piece.color} {piece.name} {piece.position} 棋子，请移动。')
+                if self.selected_piece.get_possible_moves(self):
+                    print(f'选中{self.selected_piece} 棋子，请移动。')
+                else:
+                    print(f'{self.selected_piece}无位置移动，请右键取消选择。') 
             else:
-                print(f'这不是你的棋子，请选择 {self.current_player} 色棋子。')
+                print(f'这不是你的棋子，请选择{self.current_player}色棋子。')
         else:
-            print(f'{position} 没有棋子，请重新选择。')
+            print(f'{position}没有棋子，请重新选择。')
 
     def _move_piece_to(self, to_position):
-        print(f'尝试将 {self.selected_piece.name} 移动到 {to_position}。')
         if self.is_move_legal(self.selected_piece, to_position):
+            print(f'移动成功，将{self.selected_piece}移动到{to_position}。')
             target_piece = self.get_piece_at(to_position)
             if target_piece and target_piece.color != self.selected_piece.color:
                 self.pieces.remove(target_piece)
-                print(f'{target_piece.color} 方的 {target_piece.name} 被吃掉。')
+                print(f'{target_piece.color}方的{target_piece.name}被吃掉。')
             self.selected_piece.move(to_position)
             self.selected_piece = None  # 移动成功后取消选择    
 
             if (self._is_game_over()):  # 检查游戏是否结束
                 self.game_over = True  # 设置游戏结束标志
-                print(f'游戏结束，{self.current_player} 方获胜！')
+                print(f'游戏结束，{self.current_player}方获胜！')
                 return
             else:  # 游戏未结束，切换玩家
                 self.current_player = '黑' if self.current_player == '红' else '红'
-                print(f'移动成功，当前轮到 {self.current_player} 方。')
+                print(f'当前轮到{self.current_player}方。')
         else:
-            print('移动失败，请重新移动。')
+            if self.selected_piece.get_possible_moves(self):
+                print(f'无法将{self.selected_piece}移动到{to_position}，请重新选择。')
+            else:
+                print(f'{self.selected_piece}无位置移动，请右键取消选择。')
 
     def click_position(self, position):
         if self.selected_piece is None:  # 没有选中棋子，尝试选择
