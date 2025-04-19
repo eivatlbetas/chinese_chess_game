@@ -71,12 +71,17 @@ class Board:
         possible_moves = piece.get_possible_moves(self)
         return to_position in possible_moves
 
-    def _check_check(self, color):
-        opponent_general = next((piece for piece in self.pieces if piece.name == ('將' if color == '红' else '帥')), None)
-        if opponent_general:
-            opponent_general_position = opponent_general.position
-            for piece in self.pieces:
-                if piece.color == color and opponent_general_position in piece.get_possible_moves(self):
+    def _is_check(self, color):  # 检查是否被将军
+        # 找到自己的帅
+        general_name = '帥' if color == '红' else '將'
+        general = next((p for p in self.pieces if p.name == general_name), None)
+        if not general:
+            return False
+            
+        # 检查是否有对方棋子可以攻击到自己的帅
+        for piece in self.pieces:
+            if piece.color != color and piece.position != general.position:
+                if general.position in piece.get_possible_moves(self):
                     return True
         return False
 
@@ -114,10 +119,12 @@ class Board:
                 print(f'游戏结束，{self.current_player()}方获胜！')
                 return
             else:  # 游戏未结束，切换玩家
-                self.switch_player()
-                print(f'当前轮到{self.current_player()}方。')
-                if self._check_check(self.current_player()):
+                if self._is_check(self.current_player()):
                     print(f'{self.current_player()}方被将军！')
+                if self._is_check(self.opponent_player()):
+                    print(f'{self.opponent_player()}方被将军！')
+                self.switch_player()
+                print(f'当前轮到{self.current_player()}方。') 
         else:
             if self.selected_piece.get_possible_moves(self):
                 print(f'无法将{self.selected_piece}移动到{to_position}，请重新选择。')
