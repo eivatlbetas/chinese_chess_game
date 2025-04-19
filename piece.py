@@ -28,7 +28,22 @@ class Piece:
             moves = self._get_soldier_moves(board)
         else:
             moves = []
-        return moves
+          
+        # 过滤掉会导致将帅直接碰面的移动
+        filtered_moves = []
+        for move in moves:
+            target_piece = board.get_piece_at(move)
+            if target_piece is not None and target_piece.name in ['帥', '將']:
+                filtered_moves.append(move)
+                continue
+
+            original_pos = self.position
+            self.position = move
+            if not self._are_generals_facing(board):
+                filtered_moves.append(move)
+            self.position = original_pos
+            
+        return filtered_moves
 
     def _get_chariot_moves(self, board):
         # 实现俥/車的移动逻辑
@@ -134,9 +149,11 @@ class Piece:
             palace_y_range = (0, 2)
         else:
             palace_y_range = (7, 9)
+            
         for dx, dy in offsets:
             new_x, new_y = x + dx, y + dy
-            if palace_x_range[0] <= new_x <= palace_x_range[1] and palace_y_range[0] <= new_y <= palace_y_range[1]:
+            if (palace_x_range[0] <= new_x <= palace_x_range[1] and 
+                palace_y_range[0] <= new_y <= palace_y_range[1]):
                 target_piece = board.get_piece_at((new_x, new_y))
                 if target_piece is None or target_piece.color != self.color:
                     moves.append((new_x, new_y))
@@ -206,38 +223,24 @@ class Piece:
                     moves.append((new_x, new_y))
         return moves
 
-    def is_only_piece_between_generals(self, board):
-        # 查找双方的将/帅
-        red_general = None
-        black_general = None
+    def _are_generals_facing(self, board):
+        # 检查双方的将/帅是否对面
+        red_general = next((p for p in board.pieces if p.name == '帥' and p.color == '红'), None)
+        black_general = next((p for p in board.pieces if p.name == '將' and p.color == '黑'), None)
         
-        for piece in board.pieces:
-            if piece.name == '帥' and piece.color == '红':
-                red_general = piece
-            elif piece.name == '將' and piece.color == '黑':
-                black_general = piece
-        
-        # 如果没有找到双方的将/帅，返回False
         if not red_general or not black_general:
             return False
             
-        # 检查是否在同一列
-        red_x, red_y = red_general.position
-        black_x, black_y = black_general.position
+        rx, ry = red_general.position
+        bx, by = black_general.position
         
-        if red_x != black_x:
+        if rx != bx:  # 不在同一列
             return False
             
-        # 检查当前棋子是否在两将之间
-        x, y = self.position
-        if not (x == red_x and min(red_y, black_y) < y < max(red_y, black_y)):
-            return False
-
-        # 检查两将之间是否有其他棋子
-        for piece in board.pieces:
-            x, y = piece.position
-            if x == red_x and min(red_y, black_y) < y < max(red_y, black_y):
-                if piece != self:  # 发现其他棋子
-                    return False
-                    
+        # 检查中间是否有棋子
+        min_y, max_y = sorted([ry, by])
+        for y in range(min_y + 1, max_y):
+            if board.get_piece_at((rx, y)):
+                return False
+                
         return True

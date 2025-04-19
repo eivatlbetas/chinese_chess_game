@@ -1,7 +1,5 @@
 import pygame
 
-import board
-
 class BoardView:
     def __init__(self, board, x_0 = 60, y_0 = 60, grid_size = 60, piece_size = 25):
         self.board = board # 设置棋盘对象
