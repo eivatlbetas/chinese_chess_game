@@ -1,4 +1,3 @@
-from turtle import Turtle
 import pygame
 from board import Board
 from view import BoardView
@@ -29,17 +28,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 3: # 右键点击，取消选择
-                board.selected_piece = None
-                print('取消选择。')
+            if event.button == 3: # 右键点击
+                board.click_right()
                 continue
-
-            center = view.find_nearby_center(event.pos)
-            if center == view.INVALID_POS:
-                print('点击位置无效，请在网格附近点击。')
-                continue
-            
-            board.click_position(center)
+            elif event.button == 1: # 左键点击
+                center = view.find_nearby_center(event.pos)
+                if center == view.INVALID_POS:
+                    print('点击位置无效，请在网格附近点击。')
+                    continue
+                board.click_position(center)
 
         view.display_board(screen)
         if board.game_over is True:
