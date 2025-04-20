@@ -86,7 +86,19 @@ class Board:
                     return True
         return False
 
+    def _is_checkmate(self):
+        # 检查当前玩家是否被将死
+        return False  # TODO:暂时不实现
+
+    def _is_stalemate(self):
+        # 检查当前玩家是否无棋可走(困毙)
+        for piece in self.pieces:
+            if piece.color == self.player and piece.get_possible_moves(self):
+                return False
+        return True
+
     def _is_game_over(self):
+        # FIXME: 检查当前玩家是否无棋可走
         return (not any(piece.name == '帥' for piece in self.pieces)
              or not any(piece.name == '將' for piece in self.pieces))
 
