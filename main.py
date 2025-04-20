@@ -28,7 +28,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE: # ESC键退出
+            if event.key == pygame.K_ESCAPE or event.key == pygame.K_q: # ESC键或Q键退出
                 running = False
             if event.key == pygame.K_BACKSPACE: # Backspace键悔棋
                 board.click_key_Backspace()
