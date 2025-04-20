@@ -4,14 +4,7 @@ class Recorder:
         self.captured_pieces = []
 
     def record_move(self, piece_name, piece_color, from_pos, to_pos, captured_piece=None):
-        """
-        记录一步棋
-        :param piece_name: 棋子名称
-        :param piece_color: 棋子颜色
-        :param from_pos: 起始位置
-        :param to_pos: 目标位置
-        :param captured_piece: 被吃掉的棋子信息
-        """
+        # 记录一步棋 - 棋子名称、颜色、起始位置、目标位置、被吃掉的棋子信息（如果有）
         move_number = len(self.moves) + 1
             
         move_record = {
@@ -27,10 +20,7 @@ class Recorder:
             self.captured_pieces.append(captured_piece)
 
     def undo_move(self):
-        """
-        悔棋 - 移除最后一步记录
-        :return: 被移除的移动记录和被吃掉的棋子信息，如果没有记录则返回None
-        """
+        # 悔棋 - 移除最后一步记录
         if not self.moves:
             return None, None
             

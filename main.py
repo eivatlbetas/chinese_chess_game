@@ -27,10 +27,17 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE: # ESC键退出
+                running = False
+            if event.key == pygame.K_BACKSPACE: # Backspace键悔棋
+                board.click_key_Backspace()
+            elif event.key == pygame.K_r: # R键重新开始
+                board = Board()
+                view = BoardView(board)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3: # 右键点击
                 board.click_right()
-                continue
             elif event.button == 1: # 左键点击
                 center = view.find_nearby_center(event.pos)
                 if center == view.INVALID_POS:

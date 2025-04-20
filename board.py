@@ -107,11 +107,6 @@ class Board:
         else:
             print(f'已有棋子{self.selected_piece}被选中，请先取消选择。')
 
-    def _select_cancel(self):
-        if self.selected_piece is not None:
-            print(f'取消选择{self.selected_piece}。')
-            self.selected_piece = None
-
     def _move_piece_to(self, to_position):
         if self.selected_piece is not None:
             if self.is_move_legal(self.selected_piece, to_position):
@@ -168,8 +163,13 @@ class Board:
         else:  # 已经选中棋子，尝试移动
             self._move_piece_to(position)
 
-    def click_right(self):
-        if self.selected_piece is not None:  # 取消选择
-            self._select_cancel()
-        else: # 悔棋
-            self._undo_move()
+    def click_right(self):  # 右键取消选择
+        if self.selected_piece is not None:
+            print(f'取消选择{self.selected_piece}。')
+            self.selected_piece = None
+
+    def click_key_Backspace(self): # Backspace键悔棋
+        if self.game_over:  # 游戏结束时不能悔棋
+            print('游戏已经结束，无法悔棋。')
+            return
+        self._undo_move()
