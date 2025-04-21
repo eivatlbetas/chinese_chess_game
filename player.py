@@ -1,3 +1,5 @@
+import time
+
 class Player:
     def __init__(self, color):
         '''初始化玩家
@@ -6,7 +8,7 @@ class Player:
         '''
         self.color = color
         self.time_left = self.DEF_TIME_TOTAL
-        self.time_per_turn = self.DEF_TIME_PER_TURN
+        self.time_per_turn = 0
         self.last_update = None  # 最后更新时间戳
         self.is_active = False  # 是否当前回合
 
@@ -20,8 +22,8 @@ class Player:
     def start_turn(self):
         '''开始玩家回合'''
         self.is_active = True
-        self.time_per_turn = min(self.DEF_TIME_PER_TURN, self.time_left)
         self.last_update = time.time()
+        self.time_per_turn = min(self.DEF_TIME_PER_TURN, self.time_left)
 
     def end_turn(self):
         '''结束玩家回合''' 
@@ -29,6 +31,7 @@ class Player:
             self.update_time()  # 确保更新剩余时间
             self.is_active = False
             self.last_update = None
+            self.time_per_turn = 0
         
     def update_time(self):
         '''更新剩余时间
@@ -39,15 +42,25 @@ class Player:
             now = time.time()
             elapsed = now - self.last_update
             self.time_left = max(0, self.time_left - elapsed)  # 防止负时间
+            self.time_per_turn = max(0, self.time_per_turn - elapsed)  # 防止负时间
             self.last_update = now
             return self.time_left > 0
         return True
 
-    def get_time_str(self):
+    def get_time_left_str(self):
         '''获取格式化时间显示
         Returns:
             str: 格式为"MM:SS"的时间字符串
         '''
         mins = int(self.time_left) // 60
         secs = int(self.time_left) % 60
+        return f"{mins:02d}:{secs:02d}"
+
+    def get_time_per_turn_str(self):
+        '''获取当前格式化剩余时间
+        Returns:
+            str: 格式为"MM:SS"的时间字符串
+        '''
+        mins = int(self.time_per_turn) // 60
+        secs = int(self.time_per_turn) % 60
         return f"{mins:02d}:{secs:02d}"

@@ -21,6 +21,7 @@ class Board:
         self.red_player = Player('红')  # 初始化红方玩家
         self.black_player = Player('黑')  # 初始化黑方玩家
         self.player_turn = self.red_player  # 初始时红方先行
+        self.player_turn.start_turn()  # 开始红方的回合
         self.selected_piece = None  # 存储选中的棋子
 
     # 右下角坐标为（0,0），左上角坐标为（8,9），下方为红方，上方为黑方
@@ -62,11 +63,17 @@ class Board:
             color: 指定切换到的玩家颜色(可选)
         '''
         if color == '红':
+            self.black_player.end_turn()  # 黑方回合结束
             self.player_turn = self.red_player
+            self.red_player.start_turn()  # 红方回合开始
         elif color == '黑':
+            self.red_player.end_turn()  # 红方回合结束
             self.player_turn = self.black_player
+            self.black_player.start_turn()  # 黑方回合开始
         else: # 切换到下一个玩家，即红方变黑方，黑方变红方
+            self.player_turn.end_turn()  # 当前玩家回合结束
             self.player_turn = self.black_player if self.player_turn == self.red_player else self.red_player
+            self.player_turn.start_turn()  # 切换到下一个玩家的回合
 
     def get_piece_at(self, position):
         '''获取指定位置的棋子

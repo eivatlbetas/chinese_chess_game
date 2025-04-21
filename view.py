@@ -208,3 +208,39 @@ class BoardView:
             text = font.render('平局！', True, self.GRAY_COLOR)
         text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
         screen.blit(text, text_rect)
+
+class PlayerView:
+    def __init__(self, x_0, y_0, width, height, board):
+        '''初始化玩家视图
+        Args:
+            x_0: 水平边距
+            y_0: 垂直边距
+            board: 棋盘对象
+        '''
+        self.x_0 = x_0 # 设置边距
+        self.y_0 = y_0 # 设置边距
+        self.width = width # 设置宽度
+        self.height = height # 设置高度
+        self.red_player = board.red_player # 设置红方玩家对象
+        self.black_player = board.black_player # 设置黑方玩家对象
+
+        # 定义颜色常量
+        self.RED_COLOR = (255, 0, 0)
+        self.BLACK_COLOR = (0, 0, 0)
+
+    def display_player_time(self, screen, board):
+        '''显示双方剩余时间
+        Args:
+            screen: pygame显示器
+            board: 棋盘对象
+        '''
+        font = pygame.font.SysFont('SimHei', 20)
+        red_left_time = font.render(f"本局剩余: {board.red_player.get_time_left_str()}", True, self.RED_COLOR) # 红色字体，白色背景
+        red_turn_time = font.render(f"本轮剩余: {board.red_player.get_time_per_turn_str()}", True, self.RED_COLOR) # 红色字体，白色背景
+        black_left_time = font.render(f"本局剩余: {board.black_player.get_time_left_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
+        black_turn_time = font.render(f"本轮剩余: {board.black_player.get_time_per_turn_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
+
+        screen.blit(black_left_time, (self.x_0, self.y_0 + 40)) 
+        screen.blit(black_turn_time, (self.x_0, self.y_0 + 70))
+        screen.blit(red_left_time, (self.x_0, self.y_0 + self.height - 90)) 
+        screen.blit(red_turn_time, (self.x_0, self.y_0 + self.height - 60))
