@@ -27,8 +27,21 @@ class Recorder:
         if captured_piece:
             self.captured_pieces.append(captured_piece)
 
-    def undo_move(self):
-        '''悔棋 - 移除最后一步记录'''
+    def get_last_move(self):
+        '''获取最后一步记录
+        Returns:
+            最后一步记录, 被吃掉的棋子(可选)
+        '''
+        if not self.moves:
+            return None, None
+        last_move = self.moves[-1]
+        return last_move, last_move.get('captured_piece')
+
+    def pop_last_move(self):
+        '''悔棋 - 移除最后一步记录
+        Returns:
+            最后一步记录, 被吃掉的棋子(可选)
+        '''
         if not self.moves:
             return None, None
 

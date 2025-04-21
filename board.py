@@ -203,7 +203,7 @@ class Board:
 
     def _undo_move(self):
         '''撤销上一步棋'''
-        last_move, captured_piece = self.recorder.undo_move()
+        last_move, captured_piece = self.recorder.pop_last_move()
         if last_move:  # 确保有棋步可以撤销
             self.selected_piece = self.get_piece_at(last_move['to'])  # 获取上一步棋步的棋
             if self.selected_piece:  # 确保棋子存在

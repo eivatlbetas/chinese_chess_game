@@ -24,6 +24,20 @@ class BoardView:
     WHITE_COLOR = (255, 255, 255)
     GRAY_COLOR = (128, 128, 128)
 
+    # 木质棋盘底色
+    BOARD_COLOR = (210, 180, 140)  # 浅棕色木质
+    GRID_COLOR = (139, 69, 19)     # 深棕色线条
+    # 红方棋子
+    RED_PIECE_COLOR = (178, 34, 34)   # 深红色
+    RED_TEXT_COLOR = (255, 255, 255)  # 白色文字
+    # 黑方棋子  
+    BLACK_PIECE_COLOR = (47, 79, 79)  # 深石板灰
+    BLACK_TEXT_COLOR = (255, 215, 0)  # 金色文字
+    # 楚河汉界
+    RIVER_TEXT_COLOR = GRID_COLOR
+    LAST_MOVE_COLOR = WHITE_COLOR  # 最后一步移动的颜色
+    SELECT_COLOR = GREEN_COLOR  # 选中棋子的颜色
+
     def display_board(self, screen):
         '''显示整个棋盘
         Args:
@@ -38,6 +52,9 @@ class BoardView:
         # 绘制棋子
         self._draw_pieces(screen)
 
+        # 绘制最后一步移动
+        self._draw_last_move(screen)
+
         # 显示可能的移动位置
         self._draw_possible_moves(screen)
 
@@ -47,7 +64,7 @@ class BoardView:
             screen: pygame显示器
         '''
         # 绘制棋盘外框
-        self._draw_outside_rect(screen)
+        self._draw_board_rect(screen)
 
         # 绘制棋盘网格
         for i in range(10):  # 第0-9行
@@ -81,11 +98,19 @@ class BoardView:
                 self._draw_jing_shape(screen, self.x_0 + (8 - x) * self.grid_size, self.y_0 + (9 - y) * self.grid_size, 2, 8, flag)   
 
         # 绘制楚河汉界
-        self._draw_river_boundary(screen, self.GRAY_COLOR, 'simhei', 48)
+        self._draw_river_boundary(screen)
 
-    def _draw_outside_rect(self, screen):
-        '''绘制棋盘外框'''
-        pygame.draw.rect(screen, self.BLACK_COLOR, (self.x_0 - 6, self.y_0 - 6, 8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
+    def _draw_board_rect(self, screen):
+        '''绘制棋盘外框
+        Args:
+            screen: pygame显示器
+        '''
+        board_width = self.grid_size * 8 + 2 * self.x_0  # 棋盘宽度
+        board_height = self.grid_size * 9 + 2 * self.y_0  # 棋盘高度
+        pygame.draw.rect(screen, self.BOARD_COLOR, (0, 0, board_width, board_height))
+
+        # 绘制棋盘外框
+        pygame.draw.rect(screen, self.GRID_COLOR, (self.x_0 - 6, self.y_0 - 6, 8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
 
     def _draw_line(self, screen, from_position, to_position):
         '''绘制线段
@@ -94,45 +119,48 @@ class BoardView:
             from_position: 起点坐标
             to_position: 终点坐标
         '''
-        pygame.draw.line(screen, self.BLACK_COLOR, 
+        pygame.draw.line(screen, self.GRID_COLOR, 
                         (self.x_0 + from_position[0] * self.grid_size, self.y_0 + from_position[1] * self.grid_size), 
                         (self.x_0 + to_position[0] * self.grid_size, self.y_0 + to_position[1] * self.grid_size))
 
     def _draw_jing_shape(self, screen, center_x, center_y, near = 2, far = 8, flag = '左右'):
         '''绘制井字形标记
         Args:
+            screen: pygame显示器
             center_x: 中心点x坐标
             center_y: 中心点y坐标
             near: 近端距离
             far: 远端距离
             flag: 标记方向('左'/'右'/'左右')
         '''
-        if flag != '左':
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y - near), (center_x - near, center_y - far ))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y - near), (center_x - far , center_y - near))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y + near), (center_x - near, center_y + far ))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y + near), (center_x - far , center_y + near))
-        if flag != '右':
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x + near, center_y - near), (center_x + near, center_y - far ))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x + near, center_y - near), (center_x + far , center_y - near))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x + near, center_y + near), (center_x + near, center_y + far ))
-            pygame.draw.line(screen, self.BLACK_COLOR, (center_x + near, center_y + near), (center_x + far , center_y + near))
+        color = self.GRID_COLOR
 
-    def _draw_river_boundary(self, screen, color=(128, 128, 128), font_name='simhei', font_size=48):
+        if flag != '左':
+            pygame.draw.line(screen, color, (center_x - near, center_y - near), (center_x - near, center_y - far ))
+            pygame.draw.line(screen, color, (center_x - near, center_y - near), (center_x - far , center_y - near))
+            pygame.draw.line(screen, color, (center_x - near, center_y + near), (center_x - near, center_y + far ))
+            pygame.draw.line(screen, color, (center_x - near, center_y + near), (center_x - far , center_y + near))
+        if flag != '右':
+            pygame.draw.line(screen, color, (center_x + near, center_y - near), (center_x + near, center_y - far ))
+            pygame.draw.line(screen, color, (center_x + near, center_y - near), (center_x + far , center_y - near))
+            pygame.draw.line(screen, color, (center_x + near, center_y + near), (center_x + near, center_y + far ))
+            pygame.draw.line(screen, color, (center_x + near, center_y + near), (center_x + far , center_y + near))
+
+    def _draw_river_boundary(self, screen):
         '''绘制楚河汉界文字
         Args:
-            color: 文字颜色
-            font_name: 字体名称
-            font_size: 字体大小
+            screen: pygame显示器
         '''
-        font = pygame.font.SysFont(font_name, font_size)
-        center_x = 9 * self.grid_size // 2
-        center_y = 10 * self.grid_size // 2
+        font_size = 40
+        font = pygame.font.SysFont('simhei', font_size)
+        center_x = self.x_0 + 4 * self.grid_size - font_size // 2
+        center_y = self.y_0 + 4.5 * self.grid_size - font_size // 2
+        color = self.RIVER_TEXT_COLOR
         
-        screen.blit(font.render('楚', True, color), (center_x - 3 * self.grid_size, center_y))
-        screen.blit(font.render('河', True, color), (center_x - 2 * self.grid_size, center_y))
-        screen.blit(font.render('汉', True, color), (center_x + 2 * self.grid_size, center_y))
-        screen.blit(font.render('界', True, color), (center_x + 3 * self.grid_size, center_y))
+        screen.blit(font.render('楚', True, color), (center_x - 2.5 * self.grid_size, center_y))
+        screen.blit(font.render('河', True, color), (center_x - 1.5 * self.grid_size, center_y))
+        screen.blit(font.render('汉', True, color), (center_x + 1.5 * self.grid_size, center_y))
+        screen.blit(font.render('界', True, color), (center_x + 2.5 * self.grid_size, center_y))
 
     def _draw_pieces(self, screen):
         '''绘制所有棋子
@@ -140,18 +168,18 @@ class BoardView:
             screen: pygame显示器
         '''
         for piece in self.board.pieces:
-            color = self.RED_COLOR if piece.color =='红' else self.BLACK_COLOR
             center = self._pos_convert(piece.position)
+            piece_color = self.RED_PIECE_COLOR if piece.color == '红' else self.BLACK_PIECE_COLOR
+            text_color = self.RED_TEXT_COLOR if piece.color == '红' else self.BLACK_TEXT_COLOR
+
             # 绘制棋子的轮廓
-            pygame.draw.circle(screen, color, center, self.piece_size, 2)
+            pygame.draw.circle(screen, piece_color, center, self.piece_size, 2)
             # 绘制棋子的内部
-            if self.board.selected_piece == piece:
-                pygame.draw.circle(screen, self.GRAY_COLOR, center, self.piece_size - 2)
-            else:
-                pygame.draw.circle(screen, self.WHITE_COLOR, center, self.piece_size - 2)
+            pygame.draw.circle(screen, piece_color, center, self.piece_size - 2)
+
             # 绘制棋子的名称
             font = pygame.font.SysFont('simhei', 36)
-            text = font.render(piece.name, True, color)
+            text = font.render(piece.name, True, text_color)
             text_rect = text.get_rect(center=center)
             screen.blit(text, text_rect)
 
@@ -160,10 +188,25 @@ class BoardView:
         Args:
             screen: pygame显示器
         '''
-        if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
-            possible_moves = self.board.selected_piece.get_possible_moves(self.board)
-            for move in possible_moves:
-                pygame.draw.circle(screen, self.GREEN_COLOR, self._pos_convert(move), 6)
+        if self.board.selected_piece is not None:
+            # 绘制选中棋子的轮廓
+            center = self._pos_convert(self.board.selected_piece.position)
+            pygame.draw.circle(screen, self.SELECT_COLOR, center, self.piece_size + 5, 3)
+            # 绘制选中棋子的可移动位置
+            if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
+                possible_moves = self.board.selected_piece.get_possible_moves(self.board)
+                for move in possible_moves:
+                    pygame.draw.circle(screen, self.SELECT_COLOR, self._pos_convert(move), 6)
+
+    def _draw_last_move(self, screen):
+        '''绘制最后一步移动
+        Args:
+            screen: pygame显示器
+        '''
+        last_move, captured_piece = self.board.recorder.get_last_move()
+        if last_move:
+            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 8, 3)
+            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['to']), self.piece_size + 3, 2)
 
     def _pos_convert(self, position):
         '''坐标转换
@@ -215,6 +258,8 @@ class PlayerView:
         Args:
             x_0: 水平边距
             y_0: 垂直边距
+            width: 宽度
+            height: 高度
             board: 棋盘对象
         '''
         self.x_0 = x_0 # 设置边距
@@ -240,7 +285,7 @@ class PlayerView:
         black_left_time = font.render(f"本局剩余: {board.black_player.get_time_left_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
         black_turn_time = font.render(f"本轮剩余: {board.black_player.get_time_per_turn_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
 
-        screen.blit(black_left_time, (self.x_0, self.y_0 + 40)) 
-        screen.blit(black_turn_time, (self.x_0, self.y_0 + 70))
-        screen.blit(red_left_time, (self.x_0, self.y_0 + self.height - 90)) 
-        screen.blit(red_turn_time, (self.x_0, self.y_0 + self.height - 60))
+        screen.blit(black_left_time, (self.x_0 + 20, self.y_0 + 40)) 
+        screen.blit(black_turn_time, (self.x_0 + 20, self.y_0 + 70))
+        screen.blit(red_left_time, (self.x_0 + 20, self.y_0 + self.height - 90)) 
+        screen.blit(red_turn_time, (self.x_0 + 20, self.y_0 + self.height - 60))

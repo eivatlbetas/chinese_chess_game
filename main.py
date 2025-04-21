@@ -14,8 +14,10 @@ player_view_width = 200
 pygame.init()
 
 # 设置游戏窗口
-screen_width = grid_size * 8 + 2 * x_0 + player_view_width
-screen_height = grid_size * 9 + 2 * y_0
+board_width = grid_size * 8 + 2 * x_0  # 棋盘宽度
+board_height = grid_size * 9 + 2 * y_0  # 棋盘高度
+screen_width = board_width + player_view_width
+screen_height = board_height
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('中国象棋')
 
@@ -38,7 +40,7 @@ while running:
             board.black_player.update_time()
         last_time_update = current_time
     
-    clock.tick(120)  # 限制帧率为120FPS
+    clock.tick(30)  # 限制帧率为30FPS
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
