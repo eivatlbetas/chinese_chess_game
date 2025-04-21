@@ -89,6 +89,7 @@ chinese_chess_game/
 ├── board.py       # 棋盘逻辑
 ├── piece.py       # 棋子逻辑 
 ├── recorder.py    # 棋谱记录
+├── player.py      # 玩家逻辑
 ├── main.py        # 主程序入口
 ├── view.py        # 图形界面
 ├── screenshot.png # 游戏截图

@@ -1,16 +1,33 @@
 class Piece:
     def __init__(self, name, color, position):
+        '''初始化棋子
+        Args:
+            name: 棋子名称
+            color: 棋子颜色('红'或'黑')
+            position: 初始位置(x,y)
+        '''
         self.name = name
         self.color = color
         self.position = position
 
     def __str__(self):
+        '''返回棋子的字符串表示'''
         return f'{self.color}{self.name}{self.position}'
 
     def move(self, new_position):
+        '''移动棋子到新位置
+        Args:
+            new_position: 新位置坐标(x,y)
+        '''
         self.position = new_position
 
     def get_possible_moves(self, board):
+        '''获取棋子所有可能的移动位置
+        Args:
+            board: 棋盘对象
+        Returns:
+            可能的移动位置列表
+        '''
         # 根据棋子类型实现不同的移动逻辑
         if self.name in ['俥', '車']:
             moves = self._get_chariot_moves(board)
@@ -46,7 +63,7 @@ class Piece:
         return filtered_moves
 
     def _get_chariot_moves(self, board):
-        # 实现俥/車的移动逻辑
+        '''获取俥/車的合法移动位置'''
         moves = []
         x, y = self.position
         # 横向移动
@@ -78,7 +95,7 @@ class Piece:
         return moves
 
     def _get_horse_moves(self, board):
-        # 实现傌/馬的移动逻辑
+        '''获取傌/馬的合法移动位置'''
         moves = []
         x, y = self.position
         offsets = [(1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)]
@@ -101,7 +118,7 @@ class Piece:
         return moves
 
     def _get_elephant_moves(self, board):
-        # 实现相/象的移动逻辑
+        '''获取相/象的合法移动位置'''
         moves = []
         x, y = self.position
         offsets = [(2, 2), (-2, 2), (2, -2), (-2, -2)]
@@ -122,7 +139,7 @@ class Piece:
         return moves
 
     def _get_advisor_moves(self, board):
-        # 实现仕/士的移动逻辑
+        '''获取仕/士的合法移动位置'''
         moves = []
         x, y = self.position
         offsets = [(1, 1), (-1, 1), (1, -1), (-1, -1)]
@@ -140,7 +157,7 @@ class Piece:
         return moves
 
     def _get_general_moves(self, board):
-        # 实现帥/將的移动逻辑
+        '''获取帥/將的合法移动位置'''
         moves = []
         x, y = self.position
         offsets = [(0, 1), (0, -1), (1, 0), (-1, 0)]
@@ -160,7 +177,7 @@ class Piece:
         return moves
 
     def _get_cannon_moves(self, board):
-        # 实现砲/炮的移动逻辑
+        '''获取砲/炮的合法移动位置'''
         moves = []
         x, y = self.position
         # 横向移动
@@ -200,7 +217,7 @@ class Piece:
         return moves
 
     def _get_soldier_moves(self, board):
-        # 实现兵/卒的移动逻辑
+        '''获取兵/卒的合法移动位置'''
         moves = []
         x, y = self.position
         has_crossed_river = (self.color == '红' and y >= 5) or (self.color == '黑' and y < 5)
@@ -224,7 +241,12 @@ class Piece:
         return moves
 
     def _are_generals_facing(self, board):
-        # 检查双方的将/帅是否对面
+        '''检查将帅是否对面
+        Args:
+            board: 棋盘对象
+        Returns:
+            bool: 是否对面
+        '''
         red_general = next((p for p in board.pieces if p.name == '帥' and p.color == '红'), None)
         black_general = next((p for p in board.pieces if p.name == '將' and p.color == '黑'), None)
         

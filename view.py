@@ -2,6 +2,14 @@ import pygame
 
 class BoardView:
     def __init__(self, board, x_0 = 60, y_0 = 60, grid_size = 60, piece_size = 25):
+        '''初始化棋盘视图
+        Args:
+            board: 棋盘对象
+            x_0: 水平边距
+            y_0: 垂直边距 
+            grid_size: 网格大小
+            piece_size: 棋子大小
+        '''
         self.board = board # 设置棋盘对象
         self.x_0 = x_0 # 设置边距
         self.y_0 = y_0 # 设置边距
@@ -17,6 +25,10 @@ class BoardView:
     GRAY_COLOR = (128, 128, 128)
 
     def display_board(self, screen):
+        '''显示整个棋盘
+        Args:
+            screen: pygame显示器
+        '''
         # 填充背景色
         screen.fill(self.WHITE_COLOR)
 
@@ -30,6 +42,10 @@ class BoardView:
         self._draw_possible_moves(screen)
 
     def _draw_board(self, screen):
+        '''绘制棋盘背景和网格
+        Args:
+            screen: pygame显示器
+        '''
         # 绘制棋盘外框
         self._draw_outside_rect(screen)
 
@@ -68,17 +84,29 @@ class BoardView:
         self._draw_river_boundary(screen, self.GRAY_COLOR, 'simhei', 48)
 
     def _draw_outside_rect(self, screen):
-        # 绘制棋盘外框
+        '''绘制棋盘外框'''
         pygame.draw.rect(screen, self.BLACK_COLOR, (self.x_0 - 6, self.y_0 - 6, 8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
 
     def _draw_line(self, screen, from_position, to_position):
-        # 绘制线段
+        '''绘制线段
+        Args:
+            screen: pygame显示器
+            from_position: 起点坐标
+            to_position: 终点坐标
+        '''
         pygame.draw.line(screen, self.BLACK_COLOR, 
                         (self.x_0 + from_position[0] * self.grid_size, self.y_0 + from_position[1] * self.grid_size), 
                         (self.x_0 + to_position[0] * self.grid_size, self.y_0 + to_position[1] * self.grid_size))
 
     def _draw_jing_shape(self, screen, center_x, center_y, near = 2, far = 8, flag = '左右'):
-        # 绘制井字形
+        '''绘制井字形标记
+        Args:
+            center_x: 中心点x坐标
+            center_y: 中心点y坐标
+            near: 近端距离
+            far: 远端距离
+            flag: 标记方向('左'/'右'/'左右')
+        '''
         if flag != '左':
             pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y - near), (center_x - near, center_y - far ))
             pygame.draw.line(screen, self.BLACK_COLOR, (center_x - near, center_y - near), (center_x - far , center_y - near))
@@ -91,7 +119,12 @@ class BoardView:
             pygame.draw.line(screen, self.BLACK_COLOR, (center_x + near, center_y + near), (center_x + far , center_y + near))
 
     def _draw_river_boundary(self, screen, color=(128, 128, 128), font_name='simhei', font_size=48):
-        # 绘制楚河汉界
+        '''绘制楚河汉界文字
+        Args:
+            color: 文字颜色
+            font_name: 字体名称
+            font_size: 字体大小
+        '''
         font = pygame.font.SysFont(font_name, font_size)
         center_x = 9 * self.grid_size // 2
         center_y = 10 * self.grid_size // 2
@@ -102,7 +135,10 @@ class BoardView:
         screen.blit(font.render('界', True, color), (center_x + 3 * self.grid_size, center_y))
 
     def _draw_pieces(self, screen):
-        # 绘制棋子
+        '''绘制所有棋子
+        Args:
+            screen: pygame显示器
+        '''
         for piece in self.board.pieces:
             color = self.RED_COLOR if piece.color =='红' else self.BLACK_COLOR
             center = self._pos_convert(piece.position)
@@ -120,13 +156,22 @@ class BoardView:
             screen.blit(text, text_rect)
 
     def _draw_possible_moves(self, screen):
-        # 显示棋子可能的移动位置
+        '''显示选中棋子的可移动位置
+        Args:
+            screen: pygame显示器
+        '''
         if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
             possible_moves = self.board.selected_piece.get_possible_moves(self.board)
             for move in possible_moves:
                 pygame.draw.circle(screen, self.GREEN_COLOR, self._pos_convert(move), 6)
 
     def _pos_convert(self, position):
+        '''坐标转换
+        Args:
+            position: 棋盘坐标(x,y)
+        Returns:
+            屏幕坐标(x,y)
+        '''
         # 棋盘坐标转换为屏幕坐标，棋盘右下角坐标为（0,0），左上角坐标为（8,9），屏幕左上角坐标为（x_0, y_0）
         return (self.x_0 + (8 - position[0]) * self.grid_size, self.y_0 + (9 - position[1]) * self.grid_size)
 
@@ -134,6 +179,12 @@ class BoardView:
     INVALID_POS = (-1, -1)
 
     def find_nearby_center(self, mouse):
+        '''查找最近的棋盘位置
+        Args:
+            mouse: 鼠标坐标(x,y)
+        Returns:
+            最近的棋盘坐标或INVALID_POS
+        '''
         # 遍历所有棋盘位置，计算与点击位置的距离，若小于棋子半径则返回对应坐标
         for x in range(9):
             for y in range(10):
@@ -144,10 +195,14 @@ class BoardView:
         return self.INVALID_POS
 
     def display_game_over(self, screen):
+        '''显示游戏结束信息
+        Args:
+            screen: pygame显示器
+        '''
         font = pygame.font.SysFont('simhei', 72)
-        if self.board.current_player() == '红':
+        if self.board.player_turn.color == '红':
             text = font.render('红方获胜！', True, self.RED_COLOR)
-        elif self.board.current_player() == '黑':
+        elif self.board.player_turn.color == '黑':
             text = font.render('黑方获胜！', True, self.BLACK_COLOR)
         else:
             text = font.render('平局！', True, self.GRAY_COLOR)
