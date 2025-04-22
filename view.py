@@ -16,12 +16,10 @@ class BoardView:
         self.grid_size = grid_size # 设置网格大小
         self.piece_size = piece_size # 设置棋子大小
 
-    # 定义颜色常量
-    RED_COLOR = (255, 0, 0)
-    BLACK_COLOR = (0, 0, 0)
+    # 选中棋子的颜色
     GREEN_COLOR = (0, 255, 0)
+    # 最后一步移动的颜色
     WHITE_COLOR = (255, 255, 255)
-
     # 木质棋盘底色
     BOARD_COLOR = (210, 180, 140)  # 浅棕色木质
     GRID_COLOR = (139, 69, 19)     # 深棕色线条
@@ -31,12 +29,6 @@ class BoardView:
     # 黑方棋子  
     BLACK_PIECE_COLOR = (47, 79, 79)  # 深石板灰
     BLACK_TEXT_COLOR = (255, 215, 0)  # 金色文字
-
-    # 提示信息
-    LAST_MOVE_COLOR = WHITE_COLOR  # 最后一步移动的颜色
-    SELECT_COLOR = GREEN_COLOR  # 选中棋子的颜色
-    # 楚河汉界
-    RIVER_TEXT_COLOR = GRID_COLOR
 
     def _pos_convert(self, position):
         '''棋盘坐标转换为屏幕坐标
@@ -112,11 +104,11 @@ class BoardView:
         self._draw_river_boundary(screen)
 
     def _draw_board_rect(self, screen):
-        '''绘制棋盘外框
+        '''绘制背景面板
         Args:
             screen: pygame显示器
         '''
-        # 绘制棋盘整体
+        # 绘制背景面板
         pygame.draw.rect(screen, self.BOARD_COLOR, (self.x_0, self.y_0, 10 * self.grid_size, 11 * self.grid_size))
 
         # 绘制棋盘外框
@@ -163,7 +155,7 @@ class BoardView:
         font = pygame.font.SysFont('simhei', font_size)
         center_x = self.x_0 + 5 * self.grid_size - font_size // 2
         center_y = self.y_0 + 5.5 * self.grid_size - font_size // 2
-        color = self.RIVER_TEXT_COLOR
+        color = self.GRID_COLOR
         
         screen.blit(font.render('楚', True, color), (center_x - 2.5 * self.grid_size, center_y))
         screen.blit(font.render('河', True, color), (center_x - 1.5 * self.grid_size, center_y))
@@ -198,13 +190,14 @@ class BoardView:
         '''
         if self.board.selected_piece is not None:
             # 绘制选中棋子的轮廓
+            color = self.GREEN_COLOR
             center = self._pos_convert(self.board.selected_piece.position)
-            pygame.draw.circle(screen, self.SELECT_COLOR, center, self.piece_size + 3, 2)
+            pygame.draw.circle(screen, color, center, self.piece_size + 3, 2)
             # 绘制选中棋子的可移动位置
             if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
                 possible_moves = self.board.selected_piece.get_possible_moves(self.board)
                 for move in possible_moves:
-                    pygame.draw.circle(screen, self.SELECT_COLOR, self._pos_convert(move), 6)
+                    pygame.draw.circle(screen, color, self._pos_convert(move), 6)
 
     def _draw_last_move(self, screen):
         '''绘制最后一步移动
@@ -213,11 +206,12 @@ class BoardView:
         '''
         last_move, captured_piece = self.board.recorder.get_last_move()
         if last_move:
+            color = self.WHITE_COLOR
             # 绘制最后一步移动前位置
-            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 4, 4)
-            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 10, 2)
+            pygame.draw.circle(screen, color, self._pos_convert(last_move['from']), 4, 4)
+            pygame.draw.circle(screen, color, self._pos_convert(last_move['from']), 10, 2)
             # 绘制最后一步移动后位置
-            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['to']), self.piece_size + 3, 2)
+            pygame.draw.circle(screen, color, self._pos_convert(last_move['to']), self.piece_size + 3, 2)
 
     # 定义无效位置常量
     INVALID_POS = (-1, -1)
@@ -255,9 +249,15 @@ class PlayerView:
         self.red_player = board.red_player # 设置红方玩家对象
         self.black_player = board.black_player # 设置黑方玩家对象
 
-        # 定义颜色常量
-        self.RED_COLOR = (255, 0, 0)
-        self.BLACK_COLOR = (0, 0, 0)
+    # 定义颜色常量
+    RED_COLOR = (255, 0, 0)
+    BLACK_COLOR = (0, 0, 0)
+    GREEN_COLOR = (0, 255, 0)
+
+    PANEL_BG_COLOR = (240, 230, 210)  # 米色背景
+    # TEXT_BG_COLOR = (255, 253, 245)   # 浅色文字背景
+    # HIGHLIGHT_COLOR = (255, 215, 0)   # 金色高亮
+    # TIME_WARNING_COLOR = (255, 69, 0)  # 红色警告(剩余时间少时)
 
     def display_player_time(self, screen, board):
         '''显示双方剩余时间
@@ -265,6 +265,10 @@ class PlayerView:
             screen: pygame显示器
             board: 棋盘对象
         '''
+        # 背景面板
+        pygame.draw.rect(screen, self.PANEL_BG_COLOR, (self.x_0, self.y_0, self.width, self.height))
+ 
+        # 绘制剩余时间文本
         font = pygame.font.SysFont('SimHei', 20)
         red_player_name = font.render(f'{board.red_player.name}', True, self.RED_COLOR) # 红色字体，白色背景
         red_left_time = font.render(f'本局剩余: {board.red_player.get_time_left_str()}', True, self.RED_COLOR) # 红色字体，白色背景
@@ -280,8 +284,8 @@ class PlayerView:
         screen.blit(red_left_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 50)) 
         screen.blit(red_turn_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 80))
 
-    def display_game_over(self, screen, board):
-        '''显示游戏结束信息
+    def display_player_winner(self, screen, board):
+        '''显示游戏结果
         Args:
             screen: pygame显示器
         '''
@@ -291,6 +295,6 @@ class PlayerView:
         elif board.player_turn.color == '黑':
             text = font.render('黑方获胜！', True, self.BLACK_COLOR)
         else:
-            text = font.render('双方平局！', True, self.BLUE_COLOR)
+            text = font.render('双方平局！', True, self.GREEN_COLOR)
         text_rect = text.get_rect(center=(self.x_0 + self.width // 2, self.y_0 + self.height // 2))
         screen.blit(text, text_rect)

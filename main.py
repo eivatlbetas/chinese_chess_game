@@ -70,11 +70,13 @@ while running:
     screen.fill(screen_color)
     # 显示棋盘和棋子
     board_view.display_board(screen)
-    # 显示玩家时间
-    player_view.display_player_time(screen, board)
-    # 显示游戏结束信息
-    if board.game_over is True:
-        player_view.display_game_over(screen, board)
+    
+    if board.game_over is not True:
+        # 显示玩家时间
+        player_view.display_player_time(screen, board)
+    else:
+        # 显示游戏结果
+        player_view.display_player_winner(screen, board)
     # 更新显示
     pygame.display.flip()
 
