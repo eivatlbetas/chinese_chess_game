@@ -34,7 +34,6 @@ if __name__ == '__main__':
     player_view = PlayerView(board, player_view_x_0, player_view_y_0, player_view_width, player_view_height)
     running = True
     last_time_update = time.time() # 初始化计时器
-    clock = pygame.time.Clock()  # 创建时钟对象控制帧率
 
 while running:
     current_time = time.time()
@@ -45,8 +44,6 @@ while running:
         else:
             board.black_player.update_time()
         last_time_update = current_time
-    
-    clock.tick(30)  # 限制帧率为30FPS
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -60,9 +57,9 @@ while running:
                 board = Board()
                 board_view = BoardView(board)
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 3: # 右键点击
+            if event.button == pygame.BUTTON_RIGHT: # 右键点击
                 board.click_right()
-            elif event.button == 1: # 左键点击
+            elif event.button == pygame.BUTTON_LEFT: # 左键点击
                 center = board_view.find_nearby_center(event.pos)
                 if center == board_view.INVALID_POS:
                     print('点击位置无效，请在网格附近点击。')
@@ -77,7 +74,7 @@ while running:
     player_view.display_player_time(screen, board)
     # 显示游戏结束信息
     if board.game_over is True:
-        board_view.display_game_over(screen)
+        player_view.display_game_over(screen, board)
     # 更新显示
     pygame.display.flip()
 

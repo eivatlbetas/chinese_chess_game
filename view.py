@@ -11,18 +11,16 @@ class BoardView:
             piece_size: 棋子大小
         '''
         self.board = board # 设置棋盘对象
-        self.x_0 = grid_size # 设置边距
-        self.y_0 = grid_size # 设置边距
+        self.x_0 = x_0 # 设置水平边距
+        self.y_0 = y_0 # 设置垂直边距
         self.grid_size = grid_size # 设置网格大小
         self.piece_size = piece_size # 设置棋子大小
 
     # 定义颜色常量
     RED_COLOR = (255, 0, 0)
     BLACK_COLOR = (0, 0, 0)
-    BLUE_COLOR = (0, 0, 255)
     GREEN_COLOR = (0, 255, 0)
     WHITE_COLOR = (255, 255, 255)
-    GRAY_COLOR = (128, 128, 128)
 
     # 木质棋盘底色
     BOARD_COLOR = (210, 180, 140)  # 浅棕色木质
@@ -33,10 +31,24 @@ class BoardView:
     # 黑方棋子  
     BLACK_PIECE_COLOR = (47, 79, 79)  # 深石板灰
     BLACK_TEXT_COLOR = (255, 215, 0)  # 金色文字
-    # 楚河汉界
-    RIVER_TEXT_COLOR = GRID_COLOR
+
+    # 提示信息
     LAST_MOVE_COLOR = WHITE_COLOR  # 最后一步移动的颜色
     SELECT_COLOR = GREEN_COLOR  # 选中棋子的颜色
+    # 楚河汉界
+    RIVER_TEXT_COLOR = GRID_COLOR
+
+    def _pos_convert(self, position):
+        '''棋盘坐标转换为屏幕坐标
+        Args:
+            position: 棋盘坐标(x,y)
+        Returns:
+            屏幕坐标(x,y)
+        '''
+        # 棋盘右下角坐标为（-1, -1），左上角坐标为（9, 10）
+        # 棋子右下角坐标为（0, 0），左上角坐标为（8, 9）
+        # 屏幕左上角坐标为（0, 0），右下角坐标为（10 * grid_size, 11 * grid_size）
+        return (self.x_0 + (9 - position[0]) * self.grid_size, self.y_0 + (10 - position[1]) * self.grid_size)
 
     def display_board(self, screen):
         '''显示整个棋盘
@@ -81,7 +93,8 @@ class BoardView:
         # 绘制炮的定位
         for y in [2, 7]:
             for x in [1, 7]:
-                self._draw_jing_shape(screen, self.x_0 + (8 - x) * self.grid_size, self.y_0 + (9 - y) * self.grid_size, 2, 8)
+                center = self._pos_convert((x, y))
+                self._draw_jing_shape(screen, center, 2, 8, '左右')
 
         # 绘制兵的定位
         for y in [3, 6]:
@@ -92,7 +105,8 @@ class BoardView:
                     flag = '左'
                 else:
                     flag = '左右'
-                self._draw_jing_shape(screen, self.x_0 + (8 - x) * self.grid_size, self.y_0 + (9 - y) * self.grid_size, 2, 8, flag)   
+                center = self._pos_convert((x, y))
+                self._draw_jing_shape(screen, center, 2, 8, flag)
 
         # 绘制楚河汉界
         self._draw_river_boundary(screen)
@@ -103,9 +117,11 @@ class BoardView:
             screen: pygame显示器
         '''
         # 绘制棋盘整体
-        pygame.draw.rect(screen, self.BOARD_COLOR, (self.x_0 - self.grid_size, self.y_0 - self.grid_size, 10 * self.grid_size, 11 * self.grid_size))
+        pygame.draw.rect(screen, self.BOARD_COLOR, (self.x_0, self.y_0, 10 * self.grid_size, 11 * self.grid_size))
+
         # 绘制棋盘外框
-        pygame.draw.rect(screen, self.GRID_COLOR, (self.x_0 - 6, self.y_0 - 6, 8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
+        pygame.draw.rect(screen, self.GRID_COLOR, (self.x_0 + self.grid_size - 6, self.y_0 + self.grid_size - 6, 
+                                                  8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
 
     def _draw_line(self, screen, from_position, to_position):
         '''绘制线段
@@ -114,16 +130,13 @@ class BoardView:
             from_position: 起点坐标
             to_position: 终点坐标
         '''
-        pygame.draw.line(screen, self.GRID_COLOR, 
-                        (self.x_0 + from_position[0] * self.grid_size, self.y_0 + from_position[1] * self.grid_size), 
-                        (self.x_0 + to_position[0] * self.grid_size, self.y_0 + to_position[1] * self.grid_size))
+        pygame.draw.line(screen, self.GRID_COLOR, self._pos_convert(from_position), self._pos_convert(to_position))
 
-    def _draw_jing_shape(self, screen, center_x, center_y, near = 2, far = 8, flag = '左右'):
+    def _draw_jing_shape(self, screen, center, near = 2, far = 8, flag = '左右'):
         '''绘制井字形标记
         Args:
             screen: pygame显示器
-            center_x: 中心点x坐标
-            center_y: 中心点y坐标
+            center: 中心点坐标
             near: 近端距离
             far: 远端距离
             flag: 标记方向('左'/'右'/'左右')
@@ -131,15 +144,15 @@ class BoardView:
         color = self.GRID_COLOR
 
         if flag != '左':
-            pygame.draw.line(screen, color, (center_x - near, center_y - near), (center_x - near, center_y - far ))
-            pygame.draw.line(screen, color, (center_x - near, center_y - near), (center_x - far , center_y - near))
-            pygame.draw.line(screen, color, (center_x - near, center_y + near), (center_x - near, center_y + far ))
-            pygame.draw.line(screen, color, (center_x - near, center_y + near), (center_x - far , center_y + near))
+            pygame.draw.line(screen, color, (center[0] - near, center[1] - near), (center[0] - near, center[1] - far ))
+            pygame.draw.line(screen, color, (center[0] - near, center[1] - near), (center[0] - far , center[1] - near))
+            pygame.draw.line(screen, color, (center[0] - near, center[1] + near), (center[0] - near, center[1] + far ))
+            pygame.draw.line(screen, color, (center[0] - near, center[1] + near), (center[0] - far , center[1] + near))
         if flag != '右':
-            pygame.draw.line(screen, color, (center_x + near, center_y - near), (center_x + near, center_y - far ))
-            pygame.draw.line(screen, color, (center_x + near, center_y - near), (center_x + far , center_y - near))
-            pygame.draw.line(screen, color, (center_x + near, center_y + near), (center_x + near, center_y + far ))
-            pygame.draw.line(screen, color, (center_x + near, center_y + near), (center_x + far , center_y + near))
+            pygame.draw.line(screen, color, (center[0] + near, center[1] - near), (center[0] + near, center[1] - far ))
+            pygame.draw.line(screen, color, (center[0] + near, center[1] - near), (center[0] + far , center[1] - near))
+            pygame.draw.line(screen, color, (center[0] + near, center[1] + near), (center[0] + near, center[1] + far ))
+            pygame.draw.line(screen, color, (center[0] + near, center[1] + near), (center[0] + far , center[1] + near))
 
     def _draw_river_boundary(self, screen):
         '''绘制楚河汉界文字
@@ -148,8 +161,8 @@ class BoardView:
         '''
         font_size = 40
         font = pygame.font.SysFont('simhei', font_size)
-        center_x = self.x_0 + 4 * self.grid_size - font_size // 2
-        center_y = self.y_0 + 4.5 * self.grid_size - font_size // 2
+        center_x = self.x_0 + 5 * self.grid_size - font_size // 2
+        center_y = self.y_0 + 5.5 * self.grid_size - font_size // 2
         color = self.RIVER_TEXT_COLOR
         
         screen.blit(font.render('楚', True, color), (center_x - 2.5 * self.grid_size, center_y))
@@ -206,16 +219,6 @@ class BoardView:
             # 绘制最后一步移动后位置
             pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['to']), self.piece_size + 3, 2)
 
-    def _pos_convert(self, position):
-        '''坐标转换
-        Args:
-            position: 棋盘坐标(x,y)
-        Returns:
-            屏幕坐标(x,y)
-        '''
-        # 棋盘坐标转换为屏幕坐标，棋盘右下角坐标为（0,0），左上角坐标为（8,9），屏幕左上角坐标为（0, 0）
-        return (self.x_0 + (8 - position[0]) * self.grid_size, self.y_0 + (9 - position[1]) * self.grid_size)
-
     # 定义无效位置常量
     INVALID_POS = (-1, -1)
 
@@ -234,21 +237,6 @@ class BoardView:
                 if distance <= self.piece_size:
                     return (x, y)
         return self.INVALID_POS
-
-    def display_game_over(self, screen):
-        '''显示游戏结束信息
-        Args:
-            screen: pygame显示器
-        '''
-        font = pygame.font.SysFont('simhei', 72)
-        if self.board.player_turn.color == '红':
-            text = font.render('红方获胜！', True, self.RED_COLOR)
-        elif self.board.player_turn.color == '黑':
-            text = font.render('黑方获胜！', True, self.BLACK_COLOR)
-        else:
-            text = font.render('平局！', True, self.GRAY_COLOR)
-        text_rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
-        screen.blit(text, text_rect)
 
 class PlayerView:
     def __init__(self, board, x_0, y_0, width, height):
@@ -291,3 +279,18 @@ class PlayerView:
         screen.blit(red_player_name, (self.x_0 + 30 + self.width // 2, self.y_0 + 20))
         screen.blit(red_left_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 50)) 
         screen.blit(red_turn_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 80))
+
+    def display_game_over(self, screen, board):
+        '''显示游戏结束信息
+        Args:
+            screen: pygame显示器
+        '''
+        font = pygame.font.SysFont('simhei', 72)
+        if board.player_turn.color == '红':
+            text = font.render('红方获胜！', True, self.RED_COLOR)
+        elif board.player_turn.color == '黑':
+            text = font.render('黑方获胜！', True, self.BLACK_COLOR)
+        else:
+            text = font.render('双方平局！', True, self.BLUE_COLOR)
+        text_rect = text.get_rect(center=(self.x_0 + self.width // 2, self.y_0 + self.height // 2))
+        screen.blit(text, text_rect)
