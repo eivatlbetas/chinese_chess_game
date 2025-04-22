@@ -11,14 +11,14 @@ class Player:
         if name is not None:
             self.name = name
         else:
-            self.name = f'{self.color}方玩家'
+            self.name = f'{self.color}方'
         self.time_left = self.DEF_TIME_TOTAL
-        self.time_per_turn = 0
+        self.time_per_turn = self.DEF_TIME_PER_TURN
         self.last_update = None  # 最后更新时间戳
         self.is_active = False  # 是否当前回合
 
     DEF_TIME_TOTAL = 900  # 默认总时间（秒）
-    DEF_TIME_PER_TURN = 60  # 默认回合时间（秒）
+    DEF_TIME_PER_TURN = 45  # 默认回合时间（秒）
 
     def __str__(self):
         '''返回玩家字符串表示'''
@@ -36,7 +36,7 @@ class Player:
             self.update_time()  # 确保更新剩余时间
             self.is_active = False
             self.last_update = None
-            self.time_per_turn = 0
+            self.time_per_turn = min(self.DEF_TIME_PER_TURN, self.time_left)
         
     def update_time(self):
         '''更新剩余时间

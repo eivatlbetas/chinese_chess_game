@@ -66,8 +66,6 @@ while running:
                     continue
                 board.click_position(center)
 
-    # 填充白色背景
-    screen.fill(screen_color)
     # 显示棋盘和棋子
     board_view.display_board(screen)
     
