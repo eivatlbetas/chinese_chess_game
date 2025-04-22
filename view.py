@@ -1,7 +1,7 @@
 import pygame
 
 class BoardView:
-    def __init__(self, board, x_0 = 60, y_0 = 60, grid_size = 60, piece_size = 25):
+    def __init__(self, board, x_0, y_0, grid_size, piece_size):
         '''初始化棋盘视图
         Args:
             board: 棋盘对象
@@ -11,8 +11,8 @@ class BoardView:
             piece_size: 棋子大小
         '''
         self.board = board # 设置棋盘对象
-        self.x_0 = x_0 # 设置边距
-        self.y_0 = y_0 # 设置边距
+        self.x_0 = grid_size # 设置边距
+        self.y_0 = grid_size # 设置边距
         self.grid_size = grid_size # 设置网格大小
         self.piece_size = piece_size # 设置棋子大小
 
@@ -43,9 +43,6 @@ class BoardView:
         Args:
             screen: pygame显示器
         '''
-        # 填充背景色
-        screen.fill(self.WHITE_COLOR)
-
         # 绘制棋盘
         self._draw_board(screen)
 
@@ -105,10 +102,8 @@ class BoardView:
         Args:
             screen: pygame显示器
         '''
-        board_width = self.grid_size * 8 + 2 * self.x_0  # 棋盘宽度
-        board_height = self.grid_size * 9 + 2 * self.y_0  # 棋盘高度
-        pygame.draw.rect(screen, self.BOARD_COLOR, (0, 0, board_width, board_height))
-
+        # 绘制棋盘整体
+        pygame.draw.rect(screen, self.BOARD_COLOR, (self.x_0 - self.grid_size, self.y_0 - self.grid_size, 10 * self.grid_size, 11 * self.grid_size))
         # 绘制棋盘外框
         pygame.draw.rect(screen, self.GRID_COLOR, (self.x_0 - 6, self.y_0 - 6, 8 * self.grid_size + 13, 9 * self.grid_size + 13), 2)
 
@@ -191,7 +186,7 @@ class BoardView:
         if self.board.selected_piece is not None:
             # 绘制选中棋子的轮廓
             center = self._pos_convert(self.board.selected_piece.position)
-            pygame.draw.circle(screen, self.SELECT_COLOR, center, self.piece_size + 5, 3)
+            pygame.draw.circle(screen, self.SELECT_COLOR, center, self.piece_size + 3, 2)
             # 绘制选中棋子的可移动位置
             if hasattr(self.board, 'selected_piece') and self.board.selected_piece:
                 possible_moves = self.board.selected_piece.get_possible_moves(self.board)
@@ -205,7 +200,10 @@ class BoardView:
         '''
         last_move, captured_piece = self.board.recorder.get_last_move()
         if last_move:
-            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 8, 3)
+            # 绘制最后一步移动前位置
+            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 4, 4)
+            pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['from']), 10, 2)
+            # 绘制最后一步移动后位置
             pygame.draw.circle(screen, self.LAST_MOVE_COLOR, self._pos_convert(last_move['to']), self.piece_size + 3, 2)
 
     def _pos_convert(self, position):
@@ -215,7 +213,7 @@ class BoardView:
         Returns:
             屏幕坐标(x,y)
         '''
-        # 棋盘坐标转换为屏幕坐标，棋盘右下角坐标为（0,0），左上角坐标为（8,9），屏幕左上角坐标为（x_0, y_0）
+        # 棋盘坐标转换为屏幕坐标，棋盘右下角坐标为（0,0），左上角坐标为（8,9），屏幕左上角坐标为（0, 0）
         return (self.x_0 + (8 - position[0]) * self.grid_size, self.y_0 + (9 - position[1]) * self.grid_size)
 
     # 定义无效位置常量
@@ -253,14 +251,14 @@ class BoardView:
         screen.blit(text, text_rect)
 
 class PlayerView:
-    def __init__(self, x_0, y_0, width, height, board):
+    def __init__(self, board, x_0, y_0, width, height):
         '''初始化玩家视图
         Args:
+            board: 棋盘对象
             x_0: 水平边距
             y_0: 垂直边距
             width: 宽度
             height: 高度
-            board: 棋盘对象
         '''
         self.x_0 = x_0 # 设置边距
         self.y_0 = y_0 # 设置边距
@@ -280,12 +278,16 @@ class PlayerView:
             board: 棋盘对象
         '''
         font = pygame.font.SysFont('SimHei', 20)
-        red_left_time = font.render(f"本局剩余: {board.red_player.get_time_left_str()}", True, self.RED_COLOR) # 红色字体，白色背景
-        red_turn_time = font.render(f"本轮剩余: {board.red_player.get_time_per_turn_str()}", True, self.RED_COLOR) # 红色字体，白色背景
-        black_left_time = font.render(f"本局剩余: {board.black_player.get_time_left_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
-        black_turn_time = font.render(f"本轮剩余: {board.black_player.get_time_per_turn_str()}", True, self.BLACK_COLOR) # 黑色字体，白色背景
+        red_player_name = font.render(f'{board.red_player.name}', True, self.RED_COLOR) # 红色字体，白色背景
+        red_left_time = font.render(f'本局剩余: {board.red_player.get_time_left_str()}', True, self.RED_COLOR) # 红色字体，白色背景
+        red_turn_time = font.render(f'本轮剩余: {board.red_player.get_time_per_turn_str()}', True, self.RED_COLOR) # 红色字体，白色背景
+        black_player_name = font.render(f'{board.black_player.name}', True, self.BLACK_COLOR) # 黑色字体，白色背景
+        black_left_time = font.render(f'本局剩余: {board.black_player.get_time_left_str()}', True, self.BLACK_COLOR) # 黑色字体，白色背景
+        black_turn_time = font.render(f'本轮剩余: {board.black_player.get_time_per_turn_str()}', True, self.BLACK_COLOR) # 黑色字体，白色背景
 
-        screen.blit(black_left_time, (self.x_0 + 20, self.y_0 + 40)) 
-        screen.blit(black_turn_time, (self.x_0 + 20, self.y_0 + 70))
-        screen.blit(red_left_time, (self.x_0 + 20, self.y_0 + self.height - 90)) 
-        screen.blit(red_turn_time, (self.x_0 + 20, self.y_0 + self.height - 60))
+        screen.blit(black_player_name, (self.x_0 + 30, self.y_0 + 20))
+        screen.blit(black_left_time, (self.x_0 + 30, self.y_0 + 50)) 
+        screen.blit(black_turn_time, (self.x_0 + 30, self.y_0 + 80))
+        screen.blit(red_player_name, (self.x_0 + 30 + self.width // 2, self.y_0 + 20))
+        screen.blit(red_left_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 50)) 
+        screen.blit(red_turn_time, (self.x_0 + 30 + self.width // 2, self.y_0 + 80))

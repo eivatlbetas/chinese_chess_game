@@ -1,12 +1,17 @@
 import time
 
 class Player:
-    def __init__(self, color):
+    def __init__(self, color, name=None):
         '''初始化玩家
         Args:
             color: 玩家颜色('红'或'黑')
+            name: 玩家名称(可选)
         '''
         self.color = color
+        if name is not None:
+            self.name = name
+        else:
+            self.name = f'{self.color}方玩家'
         self.time_left = self.DEF_TIME_TOTAL
         self.time_per_turn = 0
         self.last_update = None  # 最后更新时间戳
@@ -17,7 +22,7 @@ class Player:
 
     def __str__(self):
         '''返回玩家字符串表示'''
-        return f"{self.color}方"
+        return f'{self.color}方'
 
     def start_turn(self):
         '''开始玩家回合'''

@@ -4,28 +4,34 @@ from board import Board
 from view import BoardView
 from view import PlayerView
 
-# 定义网格大小和边距
-x_0 = 60
-y_0 = 60
-grid_size = 60
-player_view_width = 200
-
+# 定义棋盘视图参数
+board_view_x_0 = 0
+board_view_y_0 = 0
+board_view_grid_size = 60
+board_view_piece_size = 25
+board_view_width = 10 * board_view_grid_size
+board_view_height = 11 * board_view_grid_size
+# 定义玩家视图参数
+player_view_x_0 = 0
+player_view_y_0 = board_view_height
+player_view_width = board_view_width  # 玩家视图宽度
+player_view_height = 120  # 玩家视图高度
+# 定义屏幕大小
+screen_width = board_view_width
+screen_height = board_view_height + player_view_height
+screen_color = (255, 255, 255)  # 白色背景
 # 初始化 Pygame
 pygame.init()
 
 # 设置游戏窗口
-board_width = grid_size * 8 + 2 * x_0  # 棋盘宽度
-board_height = grid_size * 9 + 2 * y_0  # 棋盘高度
-screen_width = board_width + player_view_width
-screen_height = board_height
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption('中国象棋')
 
 # 初始化棋盘
 if __name__ == '__main__':
     board = Board()
-    board_view = BoardView(board)
-    player_view = PlayerView(screen_width - player_view_width, 0, player_view_width, screen_height, board)
+    board_view = BoardView(board, board_view_x_0, board_view_y_0, board_view_grid_size, board_view_piece_size)
+    player_view = PlayerView(board, player_view_x_0, player_view_y_0, player_view_width, player_view_height)
     running = True
     last_time_update = time.time() # 初始化计时器
     clock = pygame.time.Clock()  # 创建时钟对象控制帧率
@@ -63,6 +69,8 @@ while running:
                     continue
                 board.click_position(center)
 
+    # 填充白色背景
+    screen.fill(screen_color)
     # 显示棋盘和棋子
     board_view.display_board(screen)
     # 显示玩家时间
